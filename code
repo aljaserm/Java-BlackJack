@@ -1,0 +1,257 @@
+package game;
+
+import java.awt.Color;
+import java.util.ArrayList;
+
+import javax.swing.*;
+
+
+public class game 
+{
+
+	public static void main(String[] args)
+	{
+		JFrame window=new JFrame("21");
+		String output=JOptionPane.showInputDialog(window, "How Many player are playing? ", JOptionPane.QUESTION_MESSAGE);
+		int play_count;
+		play_count=Integer.parseInt(output);
+		ArrayList<player>players= new ArrayList<player>();
+		for(int x=0;x<play_count;x++)
+		{
+			String player_name=JOptionPane.showInputDialog(null," Enter The Name of Player "+Integer.toString(x+1), JOptionPane.QUESTION_MESSAGE);
+			players.add( new game().new player(player_name));
+			//place name labels
+		}
+		
+		player house=new game().new player("house");
+		Dealer dealer=new game().new Dealer();
+		dealer.Deal(house);
+		for(int b=0;b<play_count;++b)
+		{
+		dealer.Deal(players.get(b));
+		}
+		
+		
+	
+		
+		while(checklife(players))
+		{
+			JOptionPane.showMessageDialog( window, "the House is at: "+house.count);
+			for(int b=0;b<play_count;++b)
+			{
+				if(!players.get(b).bust)
+				{
+				
+					if(JOptionPane.showConfirmDialog(window, "Do you want to hit "
+				+players.get(b).name+"? \n your current score is "+players.get(b).count+"\n curent hand is "+
+				players.get(b).Cards())==0&&!players.get(b).stay)
+						dealer.Deal(players.get(b));
+					else
+						players.get(b).stay=true;
+				
+				}
+		
+		
+						
+			}
+ 
+			if(!house.bust)
+			{
+				dealer.Deal(house);				
+			}
+		
+			update(players,house);
+			if(EndGame(players,house)){
+				String temp = null;
+				int count=0;
+				for(int j=0;j<players.size();j++)
+				{
+					if(players.get(j).count>count);
+					temp=players.get(j).name;
+				}
+				
+				if(count>house.count||house.bust)
+				JOptionPane.showMessageDialog( window,"Player "+temp+" is the Winner " );
+				else 
+					JOptionPane.showMessageDialog( window,"the house is the Winner " );	
+				return;
+				}
+		}
+	
+	}
+	
+	
+	
+	private static boolean EndGame(ArrayList<player> players, player house) {
+		boolean quit=false;
+		for(int c=0;c<players.size();c++){
+		if(players.get(c).bust||players.get(c).stay)
+			quit=true;
+		else
+			quit=false;
+		}
+		return quit;
+	}
+
+
+
+	public static void update(ArrayList<player> players, player house)
+	{		
+		for(int x=0;x<players.size();++x)
+		{
+		if(players.get(x).count>21)
+		{
+			for(int b=0;b<	players.get(x).cards.size();b++)
+			{
+				if(players.get(x).cards.get(b)=='A'){
+					players.get(x).count-=11;
+					players.get(x).count+=1;
+				}
+			}
+			if(players.get(x).count>21)
+				
+			players.get(x).bust=true;
+		}
+		
+		}
+		
+		if(house.count>21)
+		{
+			for(int b=0;b<	house.cards.size();b++)
+			{
+				if(house.cards.get(b)=='A'){
+					house.count-=11;
+					house.count+=1;
+				}
+			}
+			if(house.count>21)
+			house.bust=true;
+		}
+	}
+
+
+
+	public static boolean checklife(ArrayList<player>players )
+	{
+		boolean check=true;
+		for(player x:players)
+		{
+			if(x.bust)
+				check=false;
+			else
+				check=true;
+
+
+		}
+		return check;
+	}
+	public class player
+	{
+		boolean bust;
+boolean stay=false;
+
+		public player (String name)
+		{
+			bust=false;
+			count=0;
+			this.name=name;
+
+		}
+		int count;
+		String name;
+		ArrayList<Character>cards=new ArrayList<Character>();
+
+		public String Cards(){
+			String buffer="";
+			for(Character x:cards)
+			buffer+=x+" ";
+			return buffer;
+		}
+		
+		
+		public void Addcard(char s){cards.add(s);
+		switch(s)
+		{
+		case '1':
+			count+=1;
+			break;
+		case '2':
+			count+=2;
+			break;
+		case '3':
+			count+=3;
+			break;
+		case '4':
+			count+=4;
+			break;
+		case '5':
+			count+=5;
+			break;
+		case '6':
+			count+=6;
+			break;
+		case '7':
+			count+=7;
+			break;
+		case '8':
+			count+=8;
+			break;
+		case '9':
+			count+=9;
+			break;
+		case 'J':
+			count+=10;
+			break;
+		case 'Q':
+			count+=10;
+			break;
+		case 'K':
+			count+=10;
+			break;
+		case 'A':
+			if(count<=10)
+			{
+				count+=11;
+			}
+			else
+			{
+				count+=1;
+			}
+			break;
+
+		}
+		}
+
+	}
+	public class Dealer
+	{
+		ArrayList<Character>Deck=new ArrayList<Character>();
+	
+Dealer()
+		{
+			for(int x=0;x<4;++x)
+			{
+				Deck.add('1');
+				Deck.add('2');
+				Deck.add('3');
+				Deck.add('4');
+				Deck.add('5');
+				Deck.add('6');
+				Deck.add('7');
+				Deck.add('8');
+				Deck.add('9');
+				Deck.add('J');
+				Deck.add('K');
+				Deck.add('Q');
+				Deck.add('A');
+			}
+		
+		}
+
+		public void Deal(player x)
+		{
+			x.Addcard(Deck.remove( (int)Math.round(Math.random()*(Deck.size()-1))));
+		}
+
+	}
+}
